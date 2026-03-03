@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Terminal: Тест на знание сленга трубопроводчика</title>
+  <style>
+    :root {
+      --safety-orange: #f97316;
+      --steel-dark: #0f172a;
+      --steel-light: #334155;
+      --gauge-bg: #1e293b;
+      --text-bright: #f1f5f9;
+      --success: #22c55e;
+      --error: #ef4444;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--steel-dark);
+      background-image: 
+        linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.9)),
+        url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+      color: var(--text-bright);
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .container { width: 100%; max-width: 600px; padding: 40px 20px; }
+
+    .industrial-card {
+      background: var(--gauge-bg);
+      border: 2px solid var(--steel-light);
+      border-top: 6px solid var(--safety-orange);
+      border-radius: 4px;
+      padding: 30px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+
+    .industrial-card::before, .industrial-card::after {
+      content: ''; position: absolute; width: 10px; height: 10px;
+      background: var(--steel-light); border-radius: 50%; top: 10px;
+    }
+    .industrial-card::before { left: 10px; }
+    .industrial-card::after { right: 10px; }
+
+    h1 { 
+      font-family: 'Courier New', Courier, monospace; 
+      text-transform: uppercase; letter-spacing: 2px;
+      color: var(--safety-orange); margin-top: 0;
+    }
+
+    input[type="text"] {
+      width: 100%; padding: 15px; background: #000;
+      border: 1px solid var(--safety-orange); color: var(--safety-orange);
+      font-family: monospace; font-size: 1.1rem; margin-bottom: 20px;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%; padding: 18px; cursor: pointer; font-weight: bold;
+      text-transform: uppercase; border: none; transition: 0.2s;
+      font-size: 1rem; border-radius: 2px; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
+    }
+    .btn-orange { background: var(--safety-orange); color: #000; }
+    .btn-orange:hover { background: #fb923c; transform: scale(1.02); }
+    .btn-orange:disabled { background: var(--steel-light); color: var(--steel-dark); opacity: 0.5; }
+
+    .opt {
+      background: rgba(255,255,255,0.05); border: 1px solid var(--steel-light);
+      padding: 15px; margin-bottom: 10px; cursor: pointer; transition: 0.1s;
+    }
+    .opt:hover { border-color: var(--safety-orange); background: rgba(249, 115, 22, 0.1); }
+    .opt.selected { border-left: 10px solid var(--safety-orange); background: rgba(249, 115, 22, 0.2); }
+
+    .gauge-wrap { margin: 20px 0; background: #000; height: 10px; border-radius: 5px; overflow: hidden; }
+    .gauge-fill { height: 100%; background: var(--safety-orange); width: 0%; transition: 0.4s; }
+
+    #review-section { display: none; margin-top: 25px; border-top: 1px solid var(--steel-light); padding-top: 20px; }
+    .review-item { 
+      background: #0a0f1a; padding: 15px; margin-bottom: 10px; 
+      border-radius: 4px; font-size: 0.9rem; 
+    }
+    .status-tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-weight: bold; margin-bottom: 5px; }
+
+    .footer-info { text-align: center; font-size: 0.7rem; color: var(--steel-light); margin-top: 30px; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div id="step-1" class="industrial-card">
+    <h1>Начало тестирования</h1>
+    <p style="color: var(--text-muted)">Тест на знание сленга трубопроводчика</p>
+    <input type="text" id="user-name" placeholder="Введите ФИО полностью" autocomplete="off">
+    <button class="btn-orange" onclick="startApp()">Начать</button>
+  </div>
+
+  <div id="step-2" class="industrial-card" style="display:none;">
+    <div style="display: flex; justify-content: space-between; font-family: monospace; color: var(--safety-orange);">
+      <span id="q-counter">Вопрос 1/10</span>
+      <span id="q-percent">0%</span>
+    </div>
+    <div class="gauge-wrap"><div id="gauge-fill" class="gauge-fill"></div></div>
+    
+    <p id="q-title" style="font-size: 1.2rem; min-height: 80px;"></p>
+    <div id="options-box"></div>
+    
+    <button id="next-btn" class="btn-orange" onclick="moveNext()" disabled>Продолжить</button>
+  </div>
+
+  <div id="step-3" class="industrial-card" style="display:none; text-align: center;">
+    <h1 id="final-name"></h1>
+    <p>Тестирование завершено</p>
+    <div id="final-score" style="font-size: 4rem; font-weight: 800; color: var(--safety-orange);">0/10</div>
+    
+    <button class="btn-orange" style="margin-top: 20px;" onclick="showReview()">Посмотреть правильные варианты ответа</button>
+    
+    <div id="review-section">
+      <div id="review-content"></div>
+      <button class="btn-orange" style="margin-top: 20px; background: none; border: 1px solid var(--safety-orange); color: var(--safety-orange);" onclick="location.reload()">НАЧАТЬ ЗАНОВО</button>
+    </div>
+  </div>
+</div>
+
+<script id="questions-data" type="text/plain">
+
+«Подай мне ту лежалую трубу, что у забора лежит, что значит «лежалая» в данном контексте?»
+а) труба, которая уже была в работе, но её нормально отмыли и можно использовать снова
+б) новая труба, которая пролежала на складе больше года и потеряла статус «новая»
+в) труба, на которой уже видна ржавчина от долгого хранения под открытым небом
+г) бракованная труба, которую отремонтировали и пустили в работу по остаточному принципу
+Правильный: б
+
+«Смотри, какая сопля свисает с отвода — надо бы зачистить.»
+а) капля конденсата или масла
+б) наплыв металла после сварки, который не убрали шлифмашинкой
+в) кусок старой изоляции, который отвалился
+г) тонкая трещина от коррозии
+Правильный: б
+
+«Дай ключ на 36 и козью ногу, сейчас будем выправлять.»
+а) специальный съёмник для фланцев
+б) монтажная лебёдка или талреп
+в) лом с загнутым концом (монтажный ломик)
+г) переходник с одного диаметра на другой
+Правильный: в
+
+«У нас пупок на 159-м вышел за габарит — придётся переваривать.»
+а) центр окружности отвода / колена
+б) приставной патрубок, приваренный под 90°
+в) самая высокая точка трубы при укладке (макушка)
+г) заводская маркировка в виде выпуклого клейма
+Правильный: б
+
+«Бери матрёшку и грузи в первую очередь — она самая ходовая.»
+а) набор труб разных диаметров, вложенных одна в другую
+б) очень тонкостенная труба, почти гнётся руками
+в) тройник с тремя одинаковыми отводами
+г) заглушка, которая надевается на несколько размеров
+Правильный: а
+
+«Сделай мне глухую заглушку на конце, а то попугай опять будет орать.»
+а) заглушка без штуцера / без отвода
+б) ярко-красная сигнальная заглушка
+в) заглушка с манометром
+г) временная заглушка из фанеры
+Правильный: а
+
+«На 325-й елке уже третья задвижка потекла за месяц.»
+а) запорная арматура на устье скважины (Christmas tree)
+б) вертикальный участок трубопровода с кучей отводов
+в) распределительный узел с несколькими ответвлениями
+г) опорная конструкция под трубой в виде ёлочки
+Правильный: а
+
+«Клади футляр через дорогу, а то опять грыжу словим.»
+а) защитная труба большего диаметра, в которую продевают рабочую
+б) резиновый компенсатор
+в) деформация трубы от теплового расширения
+г) самодельный хомут из швеллера
+Правильный: а
+
+«Этот гребешок на шве надо обязательно снять, а то УЗК не пройдёт.»
+а) наплыв / избыток металла вдоль шва
+б) волнистость кромки после резки
+в) следы от проволочной щётки
+г) участок повышенной коррозии
+Правильный: а
+
+«Дай шпильку подлиннее — на этом фланце слепой комплект.»
+а) фланец без центрального отверстия (глухой)
+б) комплект шпилек без гаек
+в) фланец, который не просвечивается на свет
+г) самый длинный болт в наборе
+Правильный: а
+
+«Проверь этот стык, по-моему, там свищ!» Что такое «свищ»?
+а) Резкий свистящий звук выходящего воздуха.
+б) Маленькое сквозное отверстие в стенке трубы или шве, через которое сочится вода.
+в) Небольшой наплыв металла после сварки.
+г) Пустота внутри бетонной опоры.
+Правильный: б
+
+«Бери болгарку, надо фаску снять, а то в муфту не зайдет». Что должен сделать рабочий?
+а) Отрезать кусок трубы ровно под углом 90 градусов.
+б) Полностью сошлифовать ржавчину с поверхности.
+в) Срезать острый внешний край торца трубы под косым углом.
+г) Прорезать канавку вдоль всей трубы.
+Правильный: в
+
+«На этом участке будем класть бэушку, заказчик добро дал». О чем идет речь?
+а) О трубах, которые уже были в эксплуатации (бывшие в употреблении).
+б) О дешевых трубах из тонкого металла.
+в) О трубах, которые не прошли заводскую проверку ОТК.
+г) О пластиковых трубах под покраску.
+Правильный: а
+
+«Глянь в колодец, там гильза на месте?» Что такое «гильза» в данном контексте?
+а) Специальный защитный колпачок на резьбу.
+б) Инструмент для расширения края трубы.
+в) Отрезок трубы большего диаметра в стене для прохода основной трубы.
+г) Металлический колышек-метка.
+Правильный: в
+
+«Вчера опрессовку сделали, всё четко, давление держит». Что проводили рабочие?
+а) Сдавливание труб прессом для изменения формы.
+б) Испытание системы на герметичность избыточным давлением.
+в) Очистку внутренней поверхности труб от песка.
+г) Нанесение битумного слоя на стыки.
+Правильный: б
+
+«Сбегай за крокодилом, обычным ключом здесь не подлезть». Какой инструмент нужно принести?
+а) Мощные кусачки для арматуры.
+б) Электрический перфоратор с длинным буром.
+в) Большой трубный (газовый) ключ с зубчатым захватом.
+г) Металлический зажим для сварки.
+Правильный: в
+
+«Там на узле американка сопливит, подтяни». Какую задачу поставили мастеру?
+а) Заменить импортный кран на отечественный.
+б) Подтянуть накидную гайку на быстроразъемном соединении.
+в) Намотать побольше льна на резьбу.
+г) Протереть трубу от конденсата.
+Правильный: б
+
+«Засор глухой, тащи кобру, будем пробивать». Что такое «кобра»?
+а) Специальный сантехнический трос или гибкий вал.
+б) Длинная палка с крюком на конце.
+в) Едкая щелочь для растворения жира.
+г) Поршневой насос.
+Правильный: а
+
+«Переход делай через футорку, иначе диаметры не сойдутся». Что это за деталь?
+а) Короткий отрезок трубы с резьбой с обеих сторон.
+б) Втулка с наружной и внутренней резьбой разных размеров.
+в) Резиновый уплотнитель.
+г) Самодельный переходник из арматуры.
+Правильный: б
+</script>
+
+<script>
+  let allQuestions = [];
+  let questions = [];
+  let currentIdx = 0;
+  let answers = [];
+  let user = "";
+
+  function parseQuestions() {
+    const raw = document.getElementById('questions-data').textContent.trim();
+    // Разбиваем по двойному переносу строки
+    const blocks = raw.split(/\n\s*\n/).filter(b => b.trim().length > 10);
+    
+    allQuestions = blocks.map(b => {
+      const lines = b.split('\n').map(l => l.trim()).filter(l => l);
+      const cIdx = lines.findIndex(l => l.toLowerCase().startsWith('правильный:'));
+      if (cIdx === -1) return null;
+      
+      const options = lines.slice(1, cIdx).map(o => o.replace(/^[абвгa-d]\)\s*/i, ''));
+      const correctLine = lines[cIdx].split(':')[1].trim().toLowerCase();
+      const map = { 'а':0, 'б':1, 'в':2, 'г':3, 'a':0, 'b':1, 'c':2, 'd':3 };
+      
+      return { 
+        q: lines[0], 
+        opts: options, 
+        correct: map[correctLine[0]] // берем первый символ
+      };
+    }).filter(q => q !== null && q.opts.length >= 2);
+  }
+
+  function shuffleAndPick10() {
+    let copy = [...allQuestions];
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    questions = copy.slice(0, 10);
+  }
+
+  function startApp() {
+    user = document.getElementById('user-name').value.trim();
+    if (user.length < 2) return alert("ОШИБКА: Введите ФИО");
+    
+    parseQuestions(); // Парсим при каждом старте
+    
+    if (allQuestions.length < 10) {
+      alert("Вопросов в базе: " + allQuestions.length + ". Нужно минимум 10!");
+      return;
+    }
+
+    shuffleAndPick10();
+    currentIdx = 0;
+    answers = new Array(questions.length).fill(null);
+
+    document.getElementById('step-1').style.display = 'none';
+    document.getElementById('step-2').style.display = 'block';
+    renderQ();
+  }
+
+  function renderQ() {
+    const q = questions[currentIdx];
+    document.getElementById('q-title').textContent = q.q;
+    const box = document.getElementById('options-box');
+    box.innerHTML = '';
+    document.getElementById('next-btn').disabled = true;
+
+    q.opts.forEach((txt, i) => {
+      const d = document.createElement('div');
+      d.className = 'opt';
+      d.textContent = txt;
+      d.onclick = () => {
+        document.querySelectorAll('.opt').forEach(el => el.classList.remove('selected'));
+        d.classList.add('selected');
+        answers[currentIdx] = i;
+        document.getElementById('next-btn').disabled = false;
+      };
+      box.appendChild(d);
+    });
+
+    const prog = ((currentIdx + 1) / questions.length) * 100;
+    document.getElementById('gauge-fill').style.width = prog + '%';
+    document.getElementById('q-counter').textContent = `Вопрос ${currentIdx + 1}/${questions.length}`;
+    document.getElementById('q-percent').textContent = Math.round(prog) + '%';
+    
+    document.getElementById('next-btn').textContent = (currentIdx === questions.length - 1) ? "ЗАВЕРШИТЬ" : "Продолжить";
+  }
+
+  function moveNext() {
+    if (currentIdx < questions.length - 1) {
+      currentIdx++;
+      renderQ();
+    } else {
+      finish();
+    }
+  }
+
+  function finish() {
+    document.getElementById('step-2').style.display = 'none';
+    document.getElementById('step-3').style.display = 'block';
+    document.getElementById('final-name').textContent = user;
+    let score = 0;
+    questions.forEach((q, i) => { if (answers[i] === q.correct) score++; });
+    document.getElementById('final-score').textContent = `${score} / ${questions.length}`;
+  }
+
+  function showReview() {
+    const content = document.getElementById('review-content');
+    content.innerHTML = '';
+    questions.forEach((q, i) => {
+      const isOk = answers[i] === q.correct;
+      content.innerHTML += `
+        <div class="review-item" style="border-right: 4px solid ${isOk ? 'var(--success)' : 'var(--error)'}">
+          <span class="status-tag" style="background:${isOk ? 'var(--success)' : 'var(--error)'}">${isOk ? 'НОРМА' : 'БРАК'}</span>
+          <div style="font-weight:bold;">${q.q}</div>
+          <div style="color:${isOk ? 'var(--success)' : 'var(--error)'}">Ваш ответ: ${answers[i] !== null ? q.opts[answers[i]] : '—'}</div>
+          ${!isOk ? `<div style="color:var(--success)">Допуск: ${q.opts[q.correct]}</div>` : ''}
+        </div>`;
+    });
+    document.getElementById('review-section').style.display = 'block';
+  }
+</script>
+
+</body>
+</html>
